@@ -22,15 +22,35 @@ namespace FileTransferApp
 
             List<Task> taskList = new List<Task>();
 
-            files.ToList().ForEach(file =>
+            foreach (var file in files)
             {
-                file.ToList().ForEach(f =>
-                {
-                    taskList.Add(MoveFile(DestDir, f));
-                });
-            });
+                Parallel.ForEach(file, f =>
+                 {
+                     var filePath = $@"{DestDir}\{f.Name}";
 
-            await Task.WhenAll(taskList);
+                     if (!File.Exists(filePath))
+                     {
+                         Log.Information($"Queueing file {f.Name} to {DestDir}");
+                         f.MoveTo(filePath);
+                     }
+                 });
+            }
+
+            await Task.CompletedTask;
+
+            #region Old implementation
+
+            //files.ToList().ForEach(file =>
+            //{
+            //    file.ToList().ForEach(f =>
+            //    {
+            //        taskList.Add(MoveFile(DestDir, f));
+            //    });
+            //});
+
+            //await Task.WhenAll(taskList);
+
+            #endregion Old implementation
         }
 
         private Task MoveFile(string DestDir, FileInfo f)

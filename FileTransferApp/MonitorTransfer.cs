@@ -41,13 +41,17 @@ namespace FileTransferApp
 
             while (!_cancellationToken.IsCancellationRequested)
             {
-                if (ReadUserCommand().Key == ConsoleKey.X)
+                await Task.Delay(2000);
+
+                var inputCommand = ReadUserCommand();
+
+                if (inputCommand.Key == ConsoleKey.X)
                 {
                     Console.WriteLine("");
                     Console.WriteLine("Shutting down please wait...");
                     Environment.Exit(0);
                 }
-                else
+                else if (inputCommand.Key == ConsoleKey.A)
                 {
                     var userEntry = ReadUserEntry();
 
@@ -69,6 +73,11 @@ namespace FileTransferApp
                     });
 
                     await rootCommand.InvokeAsync(args);
+                }
+                else
+                {
+                    Console.WriteLine("");
+                    Log.Error("Error: Wrong command received.");
                 }
             }
         }

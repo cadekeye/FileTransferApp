@@ -35,8 +35,8 @@ namespace FileTransferApp
         {
             Console.WriteLine("");
             Console.WriteLine("***********************  COMMANDS **************************************");
-            Console.WriteLine("** Add a new pair of source and destinationfolders: enter 'a'");
-            Console.WriteLine("** Exit: enter 'x'");
+            Console.WriteLine("********   Add a new pair of source and destinationfolders: enter 'a'");
+            Console.WriteLine("*******             Exit: enter 'x'  ****************************");
             Console.WriteLine("*************************************************************************");
 
             while (!_cancellationToken.IsCancellationRequested)

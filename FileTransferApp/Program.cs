@@ -24,7 +24,6 @@ namespace FileTransferApp
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(configurationBuilder)
                 .Enrich.FromLogContext()
-                .WriteTo.File(configurationBuilder.GetValue<string>("Serilog:WriteTo:File"))
                 .CreateLogger();
 
             try

@@ -1,5 +1,6 @@
 ﻿using FileTransferApp.Interfaces;
 using Serilog;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,37 +16,35 @@ namespace FileTransferApp
 
         public async Task ProcessFilesTransfer(string sourceDir, string DestDir)
         {
-            if (!DirectoryExist(sourceDir))
-            {
-                Log.Error($"ERROR: Source Dir - {sourceDir} does not exist");
-                return;
-            }
-
-            if (!DirectoryExist(DestDir))
-            {
-                Log.Error($"ERROR: Destination Dir - {DestDir} does not exist");
-                return;
-            }
-
             var files = new DirectoryInfo(sourceDir)
                 .GetFiles("*", SearchOption.AllDirectories)
                 .GroupBy(f => f.Extension).Select(s => s);
 
-            foreach (var file in files)
+            List<Task> taskList = new List<Task>();
+
+            files.ToList().ForEach(file =>
             {
-                Parallel.ForEach(file, f =>
+                file.ToList().ForEach(f =>
                 {
-                    var filePath = $@"{DestDir}\{f.Name}";
-
-                    if (!File.Exists(filePath))
-                    {
-                        Log.Information($"Starting moving file {f.Name} to {DestDir}");
-                        f.MoveTo(filePath);
-                    }
+                    taskList.Add(MoveFile(DestDir, f));
                 });
-            }
+            });
 
-            await Task.CompletedTask;
+            await Task.WhenAll(taskList);
+        }
+
+        private Task MoveFile(string DestDir, FileInfo f)
+        {
+            return Task.Run(() =>
+            {
+                var filePath = $@"{DestDir}\{f.Name}";
+
+                if (!File.Exists(filePath))
+                {
+                    Log.Information($"Starting moving file {f.Name} to {DestDir}");
+                    f.MoveTo(filePath);
+                }
+            });
         }
     }
 }
